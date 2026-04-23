@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pre-Order Form</title>
+  <style>
+    body {
+      font-family: Arial;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 50px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input, select {
+      width: 95%;
+      padding: 8px;
+      margin: 8px 0;
+    }
+
+    #terms {
+      width: 10%;
+    }
+
+    button {
+      padding: 10px;
+      width: 100%;
+      margin-top: 5px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .error {
+      color: red;
+      margin-bottom: 10px;
+      min-height: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Science Project Pre-Order</h2>
+  <strong>VENT IT OUT: SMOKE INTAKE FILTRATION SYSTEM</strong>
+  <p>This is a smoke filtration device used to reduce air pollution and protect non-smokers from secondhand smoke.</p> 
+  <p>It comes in two types: Basic and Advanced. Pre-order now to get yours at STEM Fair.</p><b> Limited stock available.</b>
+
+  <!-- Error Message Area -->
+  <div id="errorMsg" class="error"></div>
+
+  <form onsubmit="return handleOrder()">
+    
+    <label>Name:</label>
+    <input type="text" id="name">
+
+    <label>Product: VENT IT OUT</label>
+    <select id="variant">
+      <option value="">Select</option>
+      <option value="Basic (PHP 3000)">VENT IT OUT Basic (PHP 3000)</option>
+      <option value="Advanced (PHP 6500)">VENT IT OUT Advanced (PHP 6500)</option>
+    </select>
+
+    <label>Quantity:</label>
+    <input type="number" id="quantity" min="1">
+
+    <label>Pickup Method:</label>
+    <select id="pickup">
+      <option value="">Select</option>
+      <option value="Delivery">Delivery</option>
+      <option value="Meetup">Meetup</option>
+    </select>
+
+    <label>Address (for delivery only):</label>
+    <input type="text" id="address">
+
+    <label>
+      <input type="checkbox" id="terms"> I accept terms
+    </label>
+    <br><br>
+
+    <button type="button" onclick="loadPreviousOrder()">Load Previous Order</button>
+    <button type="submit">Submit</button>
+
+  </form>
+</div>
+
+<script>
+
+  // COOKIE FUNCTIONS
+  function setCookie(name, value, maxAge) {
+    document.cookie = name + "=" + encodeURIComponent(value) + "; max-age=" + maxAge + "; path=/";
+  }
+
+  function getCookie(name) {
+    const cookies = document.cookie.split("; ");
+    for (let cookie of cookies) {
+      const [key, value] = cookie.split("=");
+      if (key === name) {
+        return decodeURIComponent(value);
+      }
+    }
+    return null;
+  }
+
+  function deleteCookie(name) {
+    setCookie(name, "", -1);
+  }
+
+  function validateForm() {
+    const name = document.getElementById("name").value.trim();
+    const variant = document.getElementById("variant").value;
+    const quantity = parseInt(document.getElementById("quantity").value);
+    const pickup = document.getElementById("pickup").value;
+    const address = document.getElementById("address").value.trim();
+    const terms = document.getElementById("terms").checked;
+
+    let errors = [];
+
+    if (!name) errors.push("customer name");
+    if (!variant) errors.push("product");
+    if (!quantity || quantity <= 0) errors.push("quantity (must be greater than 0)");
+    if (!pickup) errors.push("pickup method");
+    if (pickup === "Delivery" && !address) errors.push("address");
+    if (!terms) errors.push("terms must be accepted");
+
+    if (errors.length > 0) {
+      document.getElementById("errorMsg").innerHTML = "The following fields cannot be empty or invalid: " + errors.join(", ");
+      return false;
+    }
+    return true;
+  }
+
+  // MAIN SUBMIT HANDLER
+  function handleOrder() {
+    document.getElementById("errorMsg").innerHTML = "";
+
+    if (!validateForm()) {
+      return false;
+    }
+
+    const name = document.getElementById("name").value.trim();
+    const variant = document.getElementById("variant").value;
+    const quantity = document.getElementById("quantity").value;
+    const pickup = document.getElementById("pickup").value;
+    const address = document.getElementById("address").value.trim();
+
+
+    setCookie("customerName", name, 2592000); // 30 days
+    localStorage.setItem("product", variant);
+    localStorage.setItem("quantity", quantity);
+    localStorage.setItem("pickup", pickup);
+    localStorage.setItem("address", address);
+
+    // Redirect to summary.html
+    window.location.href = "summary.html";
+
+    return false;
+  }
+
+  // LOAD PREVIOUS ORDER
+  function loadPreviousOrder() {
+    const name = getCookie("customerName");
+    const product = localStorage.getItem("product");
+    const quantity = localStorage.getItem("quantity");
+    const pickup = localStorage.getItem("pickup");
+    const address = localStorage.getItem("address");
+
+    if (!name && !product && !quantity && !pickup) {
+      document.getElementById("errorMsg").innerHTML = "No previous order data";
+      return;
+    }
+
+    if (name) document.getElementById("name").value = name;
+    if (product) document.getElementById("variant").value = product;
+    if (quantity) document.getElementById("quantity").value = quantity;
+    if (pickup) document.getElementById("pickup").value = pickup;
+    if (address) document.getElementById("address").value = address;
+  }
+
+</script>
+
+</body>
+</html>
