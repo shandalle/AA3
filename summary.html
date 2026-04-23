@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Order Summary</title>
+  <style>
+    body {
+      font-family: Arial;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 50px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .summary-item {
+      margin: 10px 0;
+    }
+
+    .total {
+      font-weight: bold;
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Order Summary</h2>
+
+  <div id="summaryContent">
+  </div>
+
+  <p>Thank you for your pre-order! We will contact you soon with further details.</p>
+</div>
+
+<script>
+  function getCookie(name) {
+    const cookies = document.cookie.split("; ");
+    for (let cookie of cookies) {
+      const [key, value] = cookie.split("=");
+      if (key === name) {
+        return decodeURIComponent(value);
+      }
+    }
+    return null;
+  }
+
+  function loadSummary() {
+    const name = getCookie("customerName");
+    const product = localStorage.getItem("product");
+    const quantity = localStorage.getItem("quantity");
+    const pickup = localStorage.getItem("pickup");
+    const address = localStorage.getItem("address");
+
+    if (!name || !product || !quantity || !pickup) {
+      document.getElementById("summaryContent").innerHTML = "<p>No order data found.</p>";
+      return;
+    }
+
+    const priceMatch = product.match(/\(PHP (\d+)\)/);
+    const price = priceMatch ? parseInt(priceMatch[1]) : 0;
+    const total = price * parseInt(quantity);
+
+    let summaryHTML = `
+      <div class="summary-item"><strong>Customer Name:</strong> ${name}</div>
+      <div class="summary-item"><strong>Product:</strong> ${product}</div>
+      <div class="summary-item"><strong>Quantity:</strong> ${quantity}</div>
+      <div class="summary-item total"><strong>Total Amount:</strong> PHP ${total}</div>
+      <div class="summary-item"><strong>Pickup Method:</strong> ${pickup}</div>
+    `;
+
+    if (pickup === "Delivery") {
+      summaryHTML += `<div class="summary-item"><strong>Address:</strong> ${address}</div>`;
+    }
+
+    document.getElementById("summaryContent").innerHTML = summaryHTML;
+  }
+
+  window.onload = loadSummary;
+</script>
+
+</body>
+</html>
